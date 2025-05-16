@@ -6,7 +6,7 @@ const request = axios.create({
   baseURL,
   timeout: 10000, // 连接超时时间
   headers: {
-    'Content-Type': 'multipart/form-data'
+    'Content-Type': 'application/json'
   }
 })
 
