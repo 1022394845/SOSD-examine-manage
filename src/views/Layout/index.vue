@@ -96,7 +96,6 @@ import { DataAnalysis, Files, User, Document, UserFilled, Setting } from '@eleme
 
   .el-main {
     margin-top: 10px;
-    background-color: #ffffff;
     overflow-x: hidden;
   }
 }
