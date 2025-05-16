@@ -1,16 +1,23 @@
 <script setup>
 import { Search, Plus, EditPen, Delete } from '@element-plus/icons-vue'
 import TagEditor from './components/TagEditor.vue'
-import { changeTagStatusAPI, deleteTagAPI } from '@/api/tag'
+import { changeTagStatusAPI, deleteTagAPI, getTagListAPI } from '@/api/tag'
 
 const searchKey = ref('')
 
-const tagList = ref([
-  { id: 1, name: 'Java', status: true },
-  { id: 2, name: '前端', status: true },
-  { id: 3, name: 'AI', status: false },
-  { id: 4, name: '后端', status: true }
-])
+const tagList = ref([])
+const loading = ref(false)
+const getTagList = async () => {
+  loading.value = true
+  const {
+    data: { record }
+  } = await getTagListAPI()
+  tagList.value = record
+  loading.value = false
+}
+onMounted(() => {
+  getTagList()
+})
 
 const tagEditor = ref()
 const onAddTag = () => {
@@ -28,6 +35,7 @@ const onDeleteTag = async (id) => {
     type: 'warning'
   })
   await deleteTagAPI([id])
+  getTagList()
   ElMessage.success('删除成功')
 }
 
@@ -48,7 +56,7 @@ const onChangeStatus = async (data) => {
       <el-button type="primary" :icon="Plus" @click="onAddTag">添加</el-button>
     </div>
     <div class="table">
-      <el-table :data="tagList" style="width: 100%">
+      <el-table :data="tagList" style="width: 100%" v-loading="loading">
         <el-table-column prop="name" label="标签" min-width="40%" />
         <el-table-column prop="status" label="上下线" min-width="30%">
           <template #default="{ row }">
@@ -63,7 +71,7 @@ const onChangeStatus = async (data) => {
         </el-table-column>
       </el-table>
     </div>
-    <TagEditor ref="tagEditor" />
+    <TagEditor ref="tagEditor" @success="getTagList" />
   </div>
 </template>
 
