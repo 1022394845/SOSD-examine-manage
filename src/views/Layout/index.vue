@@ -95,7 +95,7 @@ import { DataAnalysis, Files, User, Document, UserFilled, Setting } from '@eleme
   }
 
   .el-main {
-    margin-top: 10px;
+    padding: 10px;
     overflow-x: hidden;
   }
 }
