@@ -1,5 +1,5 @@
 <script setup>
-import { getUserListAPI } from '@/api/user'
+import { deleteUserAPI, getUserListAPI } from '@/api/user'
 import { Plus, UserFilled, EditPen, Delete } from '@element-plus/icons-vue'
 import UserEditor from './components/UserEditor.vue'
 
@@ -37,6 +37,17 @@ const userEditor = ref()
 const onEditUser = (data) => {
   userEditor.value.open(data)
 }
+
+const onDeleteUser = async (id) => {
+  await ElMessageBox.confirm('删除此用户后无法恢复，请谨慎操作！', '确认删除此用户吗', {
+    confirmButtonText: '确认',
+    cancelButtonText: '取消',
+    type: 'warning'
+  })
+  await deleteUserAPI([id])
+  getUserList()
+  ElMessage.success('删除成功')
+}
 </script>
 
 <template>
@@ -73,7 +84,7 @@ const onEditUser = (data) => {
         />
       </div>
     </div>
-    <UserEditor ref="userEditor" />
+    <UserEditor ref="userEditor" @success="getUserList" />
   </div>
 </template>
 
