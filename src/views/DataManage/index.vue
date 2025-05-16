@@ -16,7 +16,9 @@ import {
   getArticleNumAPI,
   getCategoryNumAPI,
   getDataChartInfoAPI,
+  getPVDataAPI,
   getUserNumAPI,
+  getUVDataAPI,
   getVisitNumAPI
 } from '@/api/data'
 use([
@@ -147,16 +149,7 @@ const PVUVChartOption = ref({
     type: 'category',
     axisTick: {
       alignWithLabel: true
-    },
-    data: [
-      '2025-04-15',
-      '2025-04-16',
-      '2025-04-17',
-      '2025-04-18',
-      '2025-04-19',
-      '2025-04-20',
-      '2025-04-21'
-    ]
+    }
   },
   yAxis: {
     type: 'value'
@@ -166,7 +159,6 @@ const PVUVChartOption = ref({
       name: 'PV',
       type: 'line',
       smooth: true,
-      data: [41483, 32860, 23516, 31990, 12626, 16754, 13057],
       itemStyle: {
         color: '#37a2da'
       }
@@ -175,12 +167,44 @@ const PVUVChartOption = ref({
       name: 'UV',
       type: 'line',
       smooth: true,
-      data: [2000, 3000, 5000, 4000, 2000, 3000, 1000],
       itemStyle: {
         color: '#ffd95c'
       }
     }
   ]
+})
+const getLastSevenDate = () => {
+  const current = new Date()
+  const xAxis = []
+  for (let i = 6; i >= 0; i--) {
+    const newDate = new Date(current)
+    newDate.setDate(current.getDate() - i)
+    xAxis.push([newDate.getFullYear(), newDate.getMonth() + 1, newDate.getDate()].join('-'))
+  }
+  PVUVChartOption.value.xAxis.data = xAxis
+}
+const pvLoading = ref(true)
+const getPVData = async () => {
+  pvLoading.value = true
+  const {
+    data: { pvNumber }
+  } = await getPVDataAPI()
+  PVUVChartOption.value.series[0].data = pvNumber
+  pvLoading.value = false
+}
+const uvLoading = ref(true)
+const getUVData = async () => {
+  uvLoading.value = true
+  const {
+    data: { uvNumber }
+  } = await getUVDataAPI()
+  PVUVChartOption.value.series[1].data = uvNumber
+  uvLoading.value = false
+}
+onMounted(() => {
+  getLastSevenDate()
+  getPVData()
+  getUVData()
 })
 </script>
 
@@ -219,7 +243,7 @@ const PVUVChartOption = ref({
       </div>
     </div>
     <div class="pv-uv-chart">
-      <v-chart :option="PVUVChartOption" autoresize />
+      <v-chart v-if="!pvLoading && !uvLoading" :option="PVUVChartOption" autoresize />
     </div>
   </div>
 </template>

@@ -14,3 +14,9 @@ export const getCategoryNumAPI = () => request.get('/admin/data/category')
 
 // 获取数据统计图表数据
 export const getDataChartInfoAPI = () => request.get('/admin/data/count')
+
+// 获取PV数据
+export const getPVDataAPI = () => request.get('/admin/data/pv')
+
+// 获取UV数据
+export const getUVDataAPI = () => request.get('/admin/data/uv')
