@@ -8,3 +8,6 @@ export const getUserListAPI = (pageInfo, args) =>
 
 // 修改用户信息
 export const modifyUserInfoAPI = (data) => request.put('/admin/users', data)
+
+// 删除用户
+export const deleteUserAPI = (ids) => request.delete('/admin/users', { ids })

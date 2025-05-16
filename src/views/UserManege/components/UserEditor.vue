@@ -41,11 +41,13 @@ const onChangeImage = (file) => {
   formModel.value.image = URL.createObjectURL(file.raw)
 }
 
+const emit = defineEmits(['success'])
 const submit = async () => {
   await form.value.validate()
   await modifyUserInfoAPI(formModel.value)
   ElMessage.success('保存成功')
   drawer.value = false
+  emit('success')
 }
 </script>
 
