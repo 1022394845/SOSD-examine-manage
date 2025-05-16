@@ -16,12 +16,14 @@ const open = (data) => {
 }
 defineExpose({ open })
 
+const emit = defineEmits(['success'])
 const submit = async () => {
   await form.value.validate()
   if (formModel.value.id) await modifyTagAPI(formModel.value)
   else await createTagAPI(formModel.value)
   ElMessage.success('保存成功')
   drawer.value = false
+  emit('success')
 }
 </script>
 
