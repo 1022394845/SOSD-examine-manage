@@ -1,3 +1,5 @@
 <template>
-  <div class="user-page">UserManage</div>
+  <div class="user-page">
+    <div class="operation"></div>
+  </div>
 </template>
