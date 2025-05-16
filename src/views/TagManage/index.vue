@@ -1,6 +1,7 @@
 <script setup>
 import { Search, Plus, EditPen, Delete } from '@element-plus/icons-vue'
 import TagEditor from './components/TagEditor.vue'
+import { changeTagStatusAPI, deleteTagAPI } from '@/api/tag'
 
 const searchKey = ref('')
 
@@ -19,8 +20,20 @@ const onAddTag = () => {
 const onEditTag = (data) => {
   tagEditor.value.open(data)
 }
-const onDelete = (id) => {
-  console.log(id)
+
+const onDeleteTag = async (id) => {
+  await ElMessageBox.confirm('删除此标签后无法恢复，请谨慎操作！', '确认删除此标签吗', {
+    confirmButtonText: '确认',
+    cancelButtonText: '取消',
+    type: 'warning'
+  })
+  await deleteTagAPI([id])
+  ElMessage.success('删除成功')
+}
+
+const onChangeStatus = async (data) => {
+  await changeTagStatusAPI(data.id, data.status)
+  ElMessage.success(`${data.status ? '上线' : '下线'}成功`)
 }
 </script>
 
@@ -39,13 +52,13 @@ const onDelete = (id) => {
         <el-table-column prop="name" label="标签" min-width="40%" />
         <el-table-column prop="status" label="上下线" min-width="30%">
           <template #default="{ row }">
-            <el-switch v-model="row.status" />
+            <el-switch v-model="row.status" @click="onChangeStatus(row)" />
           </template>
         </el-table-column>
         <el-table-column label="操作" min-width="15%">
           <template #default="{ row }">
             <el-button type="primary" :icon="EditPen" @click="onEditTag(row)">编辑</el-button>
-            <el-button type="danger" :icon="Delete" @click="onDelete(row.id)">删除</el-button>
+            <el-button type="danger" :icon="Delete" @click="onDeleteTag(row.id)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
