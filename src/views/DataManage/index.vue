@@ -1,115 +1,186 @@
 <script setup>
 import { View, Avatar, User, Document, Notebook } from '@element-plus/icons-vue'
-import * as echarts from 'echarts'
+// Echarts按需导入
+import VChart from 'vue-echarts'
+import { use } from 'echarts/core'
+import { PieChart, LineChart } from 'echarts/charts'
+import {
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  ToolboxComponent,
+  GridComponent
+} from 'echarts/components'
+import { CanvasRenderer } from 'echarts/renderers'
+import {
+  getArticleNumAPI,
+  getCategoryNumAPI,
+  getDataChartInfoAPI,
+  getUserNumAPI,
+  getVisitNumAPI
+} from '@/api/data'
+use([
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  ToolboxComponent,
+  GridComponent,
+  PieChart,
+  LineChart,
+  CanvasRenderer
+])
 
-let chartInstance = null // 图表实例
-
-const dataChartRef = ref()
-const dataChartInit = () => {
-  if (!dataChartRef.value) return
-  chartInstance = echarts.init(dataChartRef.value)
-  const option = {
-    title: {
-      text: '数据统计',
-      left: 'center'
-    },
-    tooltip: {
-      trigger: 'item'
-    },
-    legend: {
-      orient: 'vertical',
-      left: 20,
-      bottom: 0
-    },
-    series: [
-      {
-        type: 'pie',
-        radius: '50%',
-        label: {
-          show: false
-        },
-        data: [
-          { value: 80, name: '阅读总数' },
-          { value: 10, name: '点赞总数' },
-          { value: 5, name: '评论总数' },
-          { value: 5, name: '收藏总数' }
-        ],
-        emphasis: {
-          itemStyle: {
-            shadowBlur: 10,
-            shadowOffsetX: 0,
-            shadowColor: 'rgba(0, 0, 0, 0.5)'
-          }
-        }
-      }
-    ]
-  }
-  chartInstance.setOption(option)
-}
-
-const pv_uvChartRef = ref()
-const pv_uvChartInit = () => {
-  if (!pv_uvChartRef.value) return
-  chartInstance = echarts.init(pv_uvChartRef.value)
-  const option = {
-    title: {
-      text: 'PV/UV数据'
-    },
-    tooltip: {
-      trigger: 'axis'
-    },
-    legend: {
-      data: ['PV', 'UV']
-    },
-    grid: {
-      left: '3%',
-      right: '4%',
-      bottom: '3%',
-      containLabel: true
-    },
-    toolbox: {
-      feature: {
-        saveAsImage: {}
-      }
-    },
-    xAxis: {
-      type: 'category',
-      axisTick: {
-        alignWithLabel: true
-      },
-      data: [
-        '2025-04-15',
-        '2025-04-16',
-        '2025-04-17',
-        '2025-04-18',
-        '2025-04-19',
-        '2025-04-20',
-        '2025-04-21'
-      ]
-    },
-    yAxis: {
-      type: 'value'
-    },
-    series: [
-      {
-        name: 'PV',
-        type: 'line',
-        smooth: true,
-        data: [41483, 32860, 23516, 31990, 12626, 16754, 13057]
-      },
-      {
-        name: 'UV',
-        type: 'line',
-        smooth: true,
-        data: [2000, 3000, 5000, 4000, 2000, 3000, 1000]
-      }
-    ]
-  }
-  chartInstance.setOption(option)
+// 访问总数
+const visitNum = ref(0)
+const getVisitNum = async () => {
+  const { data } = await getVisitNumAPI()
+  visitNum.value = data.loginNumber
 }
 onMounted(() => {
-  dataChartInit()
-  pv_uvChartInit()
+  getVisitNum()
+})
+
+// 用户总数
+const userNum = ref(0)
+const getUserNum = async () => {
+  const { data } = await getUserNumAPI()
+  userNum.value = data.userNumber
+}
+onMounted(() => {
+  getUserNum()
+})
+
+// 文章总数
+const articleNum = ref(0)
+const getArticleNum = async () => {
+  const { data } = await getArticleNumAPI()
+  articleNum.value = data.articleNumber
+}
+onMounted(() => {
+  getArticleNum()
+})
+
+// 专栏总数
+// 文章总数
+const categoryNum = ref(0)
+const getCategoryNum = async () => {
+  const { data } = await getCategoryNumAPI()
+  categoryNum.value = data.categoryNumber
+}
+onMounted(() => {
+  getCategoryNum()
+})
+
+// 数据统计图表
+const dataChartOption = ref({
+  title: {
+    text: '数据统计',
+    left: 'center'
+  },
+  tooltip: {
+    trigger: 'item'
+  },
+  legend: {
+    orient: 'vertical',
+    left: 20,
+    bottom: 0
+  },
+  series: [
+    {
+      type: 'pie',
+      radius: '50%',
+      label: {
+        show: false
+      },
+      data: [
+        { value: 0, name: '收藏总数', itemStyle: { color: '#37a2da' } },
+        { value: 0, name: '点赞总数', itemStyle: { color: '#66e0e3' } },
+        { value: 0, name: '阅读总数', itemStyle: { color: '#ffdb5c' } },
+        { value: 0, name: '评论总数', itemStyle: { color: '#ff9f7f' } }
+      ],
+      emphasis: {
+        itemStyle: {
+          shadowBlur: 10,
+          shadowOffsetX: 0,
+          shadowColor: 'rgba(0, 0, 0, 0.5)'
+        }
+      }
+    }
+  ]
+})
+const getDataChartInfo = async () => {
+  const {
+    data: { favoriteNumber, likeNumber, viewNumber, commentNumber }
+  } = await getDataChartInfoAPI()
+  const info = [favoriteNumber, likeNumber, viewNumber, commentNumber]
+  dataChartOption.value.series[0].data.forEach((item, index) => {
+    item.value = info[index]
+  })
+}
+onMounted(() => {
+  getDataChartInfo()
+})
+
+// PV-UV图表
+const PVUVChartOption = ref({
+  title: {
+    text: 'PV/UV数据'
+  },
+  tooltip: {
+    trigger: 'axis'
+  },
+  legend: {
+    data: ['PV', 'UV']
+  },
+  grid: {
+    left: '3%',
+    right: '4%',
+    bottom: '3%',
+    containLabel: true
+  },
+  toolbox: {
+    feature: {
+      saveAsImage: {}
+    }
+  },
+  xAxis: {
+    type: 'category',
+    axisTick: {
+      alignWithLabel: true
+    },
+    data: [
+      '2025-04-15',
+      '2025-04-16',
+      '2025-04-17',
+      '2025-04-18',
+      '2025-04-19',
+      '2025-04-20',
+      '2025-04-21'
+    ]
+  },
+  yAxis: {
+    type: 'value'
+  },
+  series: [
+    {
+      name: 'PV',
+      type: 'line',
+      smooth: true,
+      data: [41483, 32860, 23516, 31990, 12626, 16754, 13057],
+      itemStyle: {
+        color: '#37a2da'
+      }
+    },
+    {
+      name: 'UV',
+      type: 'line',
+      smooth: true,
+      data: [2000, 3000, 5000, 4000, 2000, 3000, 1000],
+      itemStyle: {
+        color: '#ffd95c'
+      }
+    }
+  ]
 })
 </script>
 
@@ -119,7 +190,7 @@ onMounted(() => {
       <div id="col1">
         <div class="title">访问总数</div>
         <el-icon><View /></el-icon>
-        <div class="number">8176049</div>
+        <div class="number">{{ visitNum }}</div>
       </div>
       <div id="col2">
         <div class="box" id="box1">
@@ -129,32 +200,35 @@ onMounted(() => {
         </div>
         <div class="box" id="box2">
           <el-icon><User /></el-icon>
-          <div class="number">8344</div>
+          <div class="number">{{ userNum }}</div>
           <div class="title">用户总数</div>
         </div>
         <div class="box" id="box3">
           <el-icon><Document /></el-icon>
-          <div class="number">553</div>
+          <div class="number">{{ articleNum }}</div>
           <div class="title">文章总数</div>
         </div>
         <div class="box" id="box4">
           <el-icon><Notebook /></el-icon>
-          <div class="number">149</div>
+          <div class="number">{{ categoryNum }}</div>
           <div class="title">专栏总数</div>
         </div>
       </div>
       <div id="col3">
-        <div ref="dataChartRef" style="width: 100%; height: 80%"></div>
+        <v-chart :option="dataChartOption" autoresize />
       </div>
     </div>
     <div class="pv-uv-chart">
-      <div ref="pv_uvChartRef" style="width: 100%; height: 80%"></div>
+      <v-chart :option="PVUVChartOption" autoresize />
     </div>
   </div>
 </template>
 
 <style scoped lang="scss">
 .data-page {
+  padding: 20px 10px 10px;
+  background-color: #ffffff;
+
   .overview {
     display: flex;
     justify-content: space-between;
@@ -237,6 +311,7 @@ onMounted(() => {
     #col3 {
       display: flex;
       align-items: center;
+      padding: 20px 5px;
       width: 475px;
       height: 100%;
       border: 2px solid #e5e7eb;
