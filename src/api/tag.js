@@ -10,8 +10,7 @@ export const modifyTagAPI = (data) => request.put('/admin/tag', { data })
 export const deleteTagAPI = (ids) => request.delete('/admin/tag', { ids })
 
 // 上下线标签
-export const changeTagStatusAPI = (id, status) =>
-  request.post(`/admin/tag/status/${status}`, { id })
+export const changeTagStatusAPI = (id, status) => request.put(`/admin/tag/status/${status}`, { id })
 
 // 获取标签列表
 export const getTagListAPI = () => request.get('/admin/tag')

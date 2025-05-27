@@ -14,10 +14,10 @@ const loading = ref(false)
 const getUserList = async () => {
   loading.value = true
   const {
-    data: { total, record }
+    data: { total, records }
   } = await getUserListAPI(pageInfo.value)
   userNum.value = total
-  userList.value = record
+  userList.value = records
   loading.value = false
 }
 onMounted(() => {

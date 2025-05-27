@@ -9,14 +9,6 @@ const formModel = ref({})
 const rules = {
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
   gender: [{ required: true, message: '请选择性别', trigger: 'blur' }],
-  phone: [
-    { required: true, message: '请输入电话号', trigger: 'blur' },
-    {
-      pattern: /^1[34578]\d{9}$/,
-      message: '请输入正确的手机号',
-      trigger: 'blur'
-    }
-  ],
   email: [
     { required: true, message: '请输入邮箱号', trigger: 'blur' },
     {
@@ -75,9 +67,6 @@ const submit = async () => {
             <el-radio :value="1">男</el-radio>
             <el-radio :value="2">女</el-radio>
           </el-radio-group>
-        </el-form-item>
-        <el-form-item label="电话" prop="phone">
-          <el-input v-model="formModel.phone" />
         </el-form-item>
         <el-form-item label="邮箱" prop="email">
           <el-input v-model="formModel.email" />

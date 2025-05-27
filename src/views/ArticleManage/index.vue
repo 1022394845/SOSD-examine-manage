@@ -35,10 +35,10 @@ const loading = ref(false)
 const getArticleList = async () => {
   loading.value = true
   const {
-    data: { total, record }
+    data: { total, records }
   } = await getArticleListAPI(pageInfo.value, formModel.value)
   articleNum.value = total
-  articleList.value = record
+  articleList.value = records
   loading.value = false
 }
 onMounted(() => {

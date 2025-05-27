@@ -13,12 +13,11 @@ export const deleteArticleAPI = (ids) =>
   })
 
 // 修改置顶状态
-export const changeTopStatusAPI = (id, isTop) =>
-  request.post(`/admin/articles/top/${isTop}`, { id })
+export const changeTopStatusAPI = (id, isTop) => request.put(`/admin/articles/top/${isTop}`, { id })
 
 // 修改推荐状态
 export const changeRecommendStatusAPI = (id, isRecommend) =>
-  request.post(`/admin/articles/recommend/${isRecommend}`, { id })
+  request.put(`/admin/articles/recommend/${isRecommend}`, { id })
 
 // 修改发布状态
 export const changePublishStatusAPI = (id, status) => request.put('/admin/articles', { id, status })
