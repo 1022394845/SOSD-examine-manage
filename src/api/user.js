@@ -11,3 +11,6 @@ export const modifyUserInfoAPI = (data) => request.put('/admin/users', data)
 
 // 删除用户
 export const deleteUserAPI = (ids) => request.delete('/admin/users', { ids })
+
+// 上传头像
+export const uploadAvatarAPI = (file) => request.post('/user/common/upload', { file })

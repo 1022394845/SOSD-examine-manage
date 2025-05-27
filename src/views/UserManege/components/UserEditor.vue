@@ -1,5 +1,5 @@
 <script setup>
-import { modifyUserInfoAPI } from '@/api/user'
+import { modifyUserInfoAPI, uploadAvatarAPI } from '@/api/user'
 import { Plus } from '@element-plus/icons-vue'
 
 const drawer = ref(false)
@@ -23,19 +23,25 @@ const rules = {
 const open = (data) => {
   if (form.value) form.value.resetFields()
   formModel.value = { ...data }
+  if (data.image) imageUrl.value = data.image
   drawer.value = true
 }
 defineExpose({ open })
 
 const imageFile = ref()
+const imageUrl = ref()
 const onChangeImage = (file) => {
   imageFile.value = file
-  formModel.value.image = URL.createObjectURL(file.raw)
+  imageUrl.value = URL.createObjectURL(file.raw)
 }
 
 const emit = defineEmits(['success'])
 const submit = async () => {
   await form.value.validate()
+  if (imageFile.value) {
+    const { data } = await uploadAvatarAPI(imageFile.value)
+    formModel.value.image = data
+  }
   await modifyUserInfoAPI(formModel.value)
   ElMessage.success('保存成功')
   drawer.value = false
@@ -81,7 +87,7 @@ const submit = async () => {
             :auto-upload="false"
             :on-change="onChangeImage"
           >
-            <img v-if="formModel.image" :src="formModel.image" class="avatar" />
+            <img v-if="imageUrl" :src="imageUrl" class="avatar" />
             <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
           </el-upload>
         </el-form-item>
