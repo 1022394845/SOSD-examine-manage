@@ -39,9 +39,17 @@ const onDeleteTag = async (id) => {
   ElMessage.success('删除成功')
 }
 
-const onChangeStatus = async (data) => {
-  await changeTagStatusAPI(data.id, data.status)
-  ElMessage.success(`${data.status ? '上线' : '下线'}成功`)
+const onChangeStatus = async (row) => {
+  row.loading = true
+  try {
+    const newStatus = row.status ? 0 : 1
+    await changeTagStatusAPI(row.id, newStatus)
+    row.status = newStatus
+    console.log(row)
+    ElMessage.success(`${row.status ? '上线' : '下线'}成功`)
+  } finally {
+    row.loading = false
+  }
 }
 </script>
 
@@ -60,7 +68,13 @@ const onChangeStatus = async (data) => {
         <el-table-column prop="name" label="标签" min-width="40%" />
         <el-table-column prop="status" label="上下线" min-width="30%">
           <template #default="{ row }">
-            <el-switch v-model="row.status" @click="onChangeStatus(row)" />
+            <el-switch
+              v-model="row.status"
+              :active-value="1"
+              :inactive-value="0"
+              :loading="row.loading"
+              :before-change="() => onChangeStatus(row)"
+            />
           </template>
         </el-table-column>
         <el-table-column label="操作" min-width="15%">
