@@ -203,7 +203,6 @@ const onChangePublishStatus = async (row) => {
         />
       </div>
     </div>
-    <UserEditor ref="userEditor" @success="getUserList" />
   </div>
 </template>
 
