@@ -28,7 +28,7 @@ const pageInfo = ref({
   page: 1, // 当前页码
   pageSize: 10 // 页容量
 })
-// 用户列表
+// 文章列表
 const articleNum = ref(0)
 const articleList = ref([])
 const loading = ref(false)
@@ -81,19 +81,32 @@ const toggleDeleteStatus = (id) => {
   else deleteIds.value.add(id)
 }
 
-const onChangeTopStatus = async (data) => {
-  await changeTopStatusAPI(data.id, data.isTop)
-  ElMessage.success('修改成功')
+const onChangeTopStatus = async (row) => {
+  row.topLoading = true
+  try {
+    const newStatus = row.isTop ? 0 : 1
+    await changeTopStatusAPI(row.id, newStatus)
+    ElMessage.success('修改成功')
+    row.isTop = newStatus
+  } finally {
+    row.topLoading = false
+  }
 }
 
-const onChangeRecommendStatus = async (data) => {
-  if (loading.value) return
-  await changeRecommendStatusAPI(data.id, data.isRecommend)
-  ElMessage.success('修改成功')
+const onChangeRecommendStatus = async (row) => {
+  row.recommendLoading = true
+  try {
+    const newStatus = row.isRecommend ? 0 : 1
+    await changeRecommendStatusAPI(row.id, row.newStatus)
+    ElMessage.success('修改成功')
+    row.isRecommend = newStatus
+  } finally {
+    row.recommendLoading = false
+  }
 }
 
-const onChangePublishStatus = async (data) => {
-  await changePublishStatusAPI(data.id, data.status)
+const onChangePublishStatus = async (row) => {
+  await changePublishStatusAPI(row.id, row.status)
   ElMessage.success('修改成功')
 }
 </script>
@@ -109,12 +122,12 @@ const onChangePublishStatus = async (data) => {
         <el-option label="已发布" :value="2" />
       </el-select>
       <el-select v-model="formModel.isTop" placeholder="是否置顶" style="width: 100px">
-        <el-option label="否" :value="false" />
-        <el-option label="是" :value="true" />
+        <el-option label="否" :value="0" />
+        <el-option label="是" :value="1" />
       </el-select>
       <el-select v-model="formModel.isRecommend" placeholder="是否推荐" style="width: 100px">
-        <el-option label="否" :value="false" />
-        <el-option label="是" :value="true" />
+        <el-option label="否" :value="0" />
+        <el-option label="是" :value="1" />
       </el-select>
       <div class="button">
         <el-button type="primary" :icon="Search" @click="onSearch" />
@@ -136,12 +149,24 @@ const onChangePublishStatus = async (data) => {
         </el-table-column>
         <el-table-column prop="isTop" label="置顶" min-width="5%">
           <template #default="{ row }">
-            <el-switch v-model="row.isTop" @click="onChangeTopStatus(row)" />
+            <el-switch
+              v-model="row.isTop"
+              :active-value="1"
+              :inactive-value="0"
+              :loading="row.topLoading"
+              :before-change="() => onChangeTopStatus(row)"
+            />
           </template>
         </el-table-column>
         <el-table-column prop="isRecommend" label="推荐" min-width="5%">
           <template #default="{ row }">
-            <el-switch v-model="row.isRecommend" @click="onChangeRecommendStatus(row)" />
+            <el-switch
+              v-model="row.isRecommend"
+              :active-value="1"
+              :inactive-value="0"
+              :loading="row.recommendLoading"
+              :before-change="() => onChangeRecommendStatus(row)"
+            />
           </template>
         </el-table-column>
         <el-table-column prop="status" label="状态" min-width="10%">
