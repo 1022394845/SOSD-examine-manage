@@ -34,6 +34,9 @@ watch(
 )
 
 const userEditor = ref()
+const onAddUser = () => {
+  userEditor.value.open()
+}
 const onEditUser = (data) => {
   userEditor.value.open(data)
 }
@@ -53,7 +56,7 @@ const onDeleteUser = async (id) => {
 <template>
   <div class="user-page">
     <div class="operation">
-      <el-button type="primary" :icon="Plus">添加作者</el-button>
+      <el-button type="primary" :icon="Plus" @click="onAddUser">添加作者</el-button>
     </div>
     <div class="table">
       <el-table :data="userList" style="width: 100%" v-loading="loading">

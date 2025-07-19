@@ -1,5 +1,5 @@
 <script setup>
-import { modifyUserInfoAPI, uploadAvatarAPI } from '@/api/user'
+import { addUserAPI, modifyUserInfoAPI, uploadAvatarAPI } from '@/api/user'
 import { Plus } from '@element-plus/icons-vue'
 
 const drawer = ref(false)
@@ -22,8 +22,12 @@ const rules = {
 
 const open = (data) => {
   if (form.value) form.value.resetFields()
-  formModel.value = { ...data }
-  if (data.image) imageUrl.value = data.image
+  formModel.value = {}
+  imageUrl.value = ''
+  if (data) {
+    formModel.value = { ...data }
+    if (data.image) imageUrl.value = data.image
+  }
   drawer.value = true
 }
 defineExpose({ open })
@@ -42,7 +46,8 @@ const submit = async () => {
     const { data } = await uploadAvatarAPI(imageFile.value)
     formModel.value.image = data
   }
-  await modifyUserInfoAPI(formModel.value)
+  if (formModel.value.id) await modifyUserInfoAPI(formModel.value)
+  else await addUserAPI(formModel.value)
   ElMessage.success('保存成功')
   drawer.value = false
   emit('success')
@@ -63,7 +68,7 @@ const submit = async () => {
         hide-required-asterisk
       >
         <el-form-item label="账号" prop="account">
-          <el-input v-model="formModel.account" disabled />
+          <el-input v-model="formModel.account" :disabled="formModel.id" />
         </el-form-item>
         <el-form-item label="名称" prop="username">
           <el-input v-model="formModel.username" />
