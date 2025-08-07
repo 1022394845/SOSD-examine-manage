@@ -13,6 +13,7 @@ const userList = ref([])
 const loading = ref(false)
 const getUserList = async () => {
   loading.value = true
+  window.scrollTo(0, 0)
   const {
     data: { total, records }
   } = await getUserListAPI(pageInfo.value)
@@ -47,7 +48,7 @@ const onDeleteUser = async (id) => {
     cancelButtonText: '取消',
     type: 'warning'
   })
-  await deleteUserAPI([id])
+  await deleteUserAPI(id)
   getUserList()
   ElMessage.success('删除成功')
 }
@@ -56,12 +57,13 @@ const onDeleteUser = async (id) => {
 <template>
   <div class="user-page">
     <div class="operation">
+      <div class="title">用户管理</div>
       <el-button type="primary" :icon="Plus" @click="onAddUser">添加作者</el-button>
     </div>
     <div class="table">
       <el-table :data="userList" style="width: 100%" v-loading="loading">
-        <el-table-column prop="username" label="作者名称" min-width="40%" />
-        <el-table-column prop="image" label="作者头像" min-width="30%">
+        <el-table-column prop="username" label="用户名" />
+        <el-table-column prop="image" label="头像" width="150" align="center">
           <template #default="{ row }">
             <el-avatar fit="fill">
               <img v-if="row.image" :src="row.image" alt="" />
@@ -69,7 +71,7 @@ const onDeleteUser = async (id) => {
             </el-avatar>
           </template>
         </el-table-column>
-        <el-table-column label="操作" min-width="15%">
+        <el-table-column label="操作" width="200" align="center">
           <template #default="{ row }">
             <el-button type="primary" :icon="EditPen" @click="onEditUser(row)">编辑</el-button>
             <el-button type="danger" :icon="Delete" @click="onDeleteUser(row.id)">删除</el-button>
@@ -82,8 +84,8 @@ const onDeleteUser = async (id) => {
           layout="prev, pager, next"
           background
           :total="userNum"
-          v-model:current-page="pageInfo.page_num"
-          v-model:page-size="pageInfo.page_size"
+          v-model:current-page="pageInfo.page"
+          v-model:page-size="pageInfo.pageSize"
         />
       </div>
     </div>
@@ -95,24 +97,16 @@ const onDeleteUser = async (id) => {
 .user-page {
   .operation {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
     padding: 0 50px;
     height: 80px;
     border-radius: 10px;
     background-color: #ffffff;
-  }
 
-  .table {
-    margin-top: 20px;
-    padding: 10px;
-    border-radius: 10px;
-    background-color: #ffffff;
-
-    .pagination {
-      margin-top: 30px;
-      display: flex;
-      justify-content: flex-end;
+    .title {
+      font-size: 28px;
+      font-weight: bold;
     }
   }
 }

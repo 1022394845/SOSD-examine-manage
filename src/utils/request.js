@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const baseURL = 'https://m1.apifoxmock.com/m1/6116667-5807967-default' // 基地址
+const baseURL = import.meta.env.VITE_BASE_URL // 基地址
 
 const request = axios.create({
   baseURL,
@@ -26,7 +26,7 @@ request.interceptors.request.use(
 request.interceptors.response.use(
   (response) => {
     // 摘取核心响应数据
-    if (response?.status >= 200 && response?.status < 300) {
+    if (response?.status >= 200 && response?.status < 300 && response?.data.code === 1) {
       return response.data
     }
     // 处理业务失败
@@ -34,8 +34,6 @@ request.interceptors.response.use(
     return Promise.reject(response.data)
   },
   (error) => {
-    // 401: token失效或无权限访问
-    if (error.response?.status === 401) router.push('/login')
     // 默认错误
     ElMessage.error(error.response?.data.msg || '服务异常')
     return Promise.reject(error)

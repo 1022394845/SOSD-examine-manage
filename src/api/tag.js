@@ -4,13 +4,14 @@ import request from '@/utils/request'
 export const createTagAPI = (data) => request.post('/admin/tag', data)
 
 // 修改标签
-export const modifyTagAPI = (data) => request.put('/admin/tag', { data })
+export const modifyTagAPI = (data) => request.put('/admin/tag', data)
 
 // 删除标签
-export const deleteTagAPI = (ids) => request.delete('/admin/tag', { ids })
+export const deleteTagAPI = (ids) => request.delete('/admin/tag', { params: { ids } })
 
 // 上下线标签
-export const changeTagStatusAPI = (id, status) => request.put(`/admin/tag/status/${status}`, { id })
+export const changeTagStatusAPI = (id, status) =>
+  request.put(`/admin/tag/status/${status}`, null, { params: { id } })
 
 // 获取标签列表
 export const getTagListAPI = () => request.get('/admin/tag')

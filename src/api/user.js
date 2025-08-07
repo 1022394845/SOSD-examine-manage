@@ -13,7 +13,7 @@ export const addUserAPI = (data) => request.post('/user/addAuthors', data)
 export const modifyUserInfoAPI = (data) => request.put('/admin/users', data)
 
 // 删除用户
-export const deleteUserAPI = (ids) => request.delete('/admin/users', { ids })
+export const deleteUserAPI = (ids) => request.delete('/admin/users', { params: { ids } })
 
 // 上传头像
 export const uploadAvatarAPI = (file) => request.post('/user/common/upload', { file })

@@ -23,6 +23,16 @@ const formModel = ref({
   isTop: null,
   isRecommend: null
 })
+const clear = () => {
+  formModel.value = {
+    author: null,
+    title: null,
+    status: null,
+    isTop: null,
+    isRecommend: null
+  }
+  getArticleList()
+}
 
 const pageInfo = ref({
   page: 1, // 当前页码
@@ -34,6 +44,7 @@ const articleList = ref([])
 const loading = ref(false)
 const getArticleList = async () => {
   loading.value = true
+  window.scrollTo(0, 0)
   const {
     data: { total, records }
   } = await getArticleListAPI(pageInfo.value, formModel.value)
@@ -55,6 +66,11 @@ watch(
 )
 
 const onSearch = () => {
+  if (formModel.value) {
+    for (let key in formModel.value) {
+      if (formModel.value[key] === '') formModel.value[key] = null
+    }
+  }
   getArticleList()
 }
 
@@ -84,8 +100,8 @@ const toggleDeleteStatus = (id) => {
 const onChangeTopStatus = async (row) => {
   row.topLoading = true
   try {
-    const newStatus = row.isTop ? 0 : 1
-    await changeTopStatusAPI(row.id, newStatus)
+    const newStatus = !row.isTop
+    await changeTopStatusAPI(row.id, newStatus ? 1 : 0)
     ElMessage.success('修改成功')
     row.isTop = newStatus
   } finally {
@@ -96,8 +112,8 @@ const onChangeTopStatus = async (row) => {
 const onChangeRecommendStatus = async (row) => {
   row.recommendLoading = true
   try {
-    const newStatus = row.isRecommend ? 0 : 1
-    await changeRecommendStatusAPI(row.id, row.newStatus)
+    const newStatus = !row.isRecommend
+    await changeRecommendStatusAPI(row.id, newStatus ? 1 : 0)
     ElMessage.success('修改成功')
     row.isRecommend = newStatus
   } finally {
@@ -114,7 +130,7 @@ const onChangePublishStatus = async (row) => {
 <template>
   <div class="article-page">
     <div class="operation">
-      <el-input v-model="formModel.author" placeholder="请输入作者名" style="width: 200px" />
+      <el-input v-model="formModel.author" placeholder="请输入作者名" style="width: 150px" />
       <el-input v-model="formModel.title" placeholder="请输入标题" style="width: 200px" />
       <el-select v-model="formModel.status" placeholder="选择状态" style="width: 100px">
         <el-option label="未发布" :value="0" />
@@ -122,24 +138,30 @@ const onChangePublishStatus = async (row) => {
         <el-option label="已发布" :value="2" />
       </el-select>
       <el-select v-model="formModel.isTop" placeholder="是否置顶" style="width: 100px">
-        <el-option label="否" :value="0" />
-        <el-option label="是" :value="1" />
+        <el-option label="否" :value="false" />
+        <el-option label="是" :value="true" />
       </el-select>
       <el-select v-model="formModel.isRecommend" placeholder="是否推荐" style="width: 100px">
-        <el-option label="否" :value="0" />
-        <el-option label="是" :value="1" />
+        <el-option label="否" :value="false" />
+        <el-option label="是" :value="true" />
       </el-select>
+      <el-button type="primary" size="small" @click="clear">清空筛选</el-button>
       <div class="button">
-        <el-button type="primary" :icon="Search" @click="onSearch" />
-        <el-button type="primary" :icon="CirclePlus" />
-        <el-button type="danger" :icon="onDelete ? Check : Delete" @click="onBatchDelete" />
+        <el-button type="primary" :icon="Search" class="btn" @click="onSearch" />
+        <el-button type="primary" :icon="CirclePlus" class="btn" />
+        <el-button
+          type="danger"
+          :icon="onDelete ? Check : Delete"
+          class="btn"
+          @click="onBatchDelete"
+        />
       </div>
     </div>
     <div class="table">
       <el-table :data="articleList" style="width: 100%" v-loading="loading">
-        <el-table-column prop="title" label="标题" min-width="38%" />
-        <el-table-column prop="updateTime" label="修改时间" min-width="10%" />
-        <el-table-column prop="image" label="作者" min-width="5%">
+        <el-table-column prop="title" label="标题" />
+        <el-table-column prop="updateTime" label="修改时间" width="200" align="center" />
+        <el-table-column prop="image" label="作者" width="80" align="center">
           <template #default="{ row }">
             <el-avatar fit="fill">
               <img v-if="row.image" :src="row.image" alt="" />
@@ -147,29 +169,25 @@ const onChangePublishStatus = async (row) => {
             </el-avatar>
           </template>
         </el-table-column>
-        <el-table-column prop="isTop" label="置顶" min-width="5%">
+        <el-table-column prop="isTop" label="置顶" width="80" align="center">
           <template #default="{ row }">
             <el-switch
               v-model="row.isTop"
-              :active-value="1"
-              :inactive-value="0"
               :loading="row.topLoading"
               :before-change="() => onChangeTopStatus(row)"
             />
           </template>
         </el-table-column>
-        <el-table-column prop="isRecommend" label="推荐" min-width="5%">
+        <el-table-column prop="isRecommend" label="推荐" width="80" align="center">
           <template #default="{ row }">
             <el-switch
               v-model="row.isRecommend"
-              :active-value="1"
-              :inactive-value="0"
               :loading="row.recommendLoading"
               :before-change="() => onChangeRecommendStatus(row)"
             />
           </template>
         </el-table-column>
-        <el-table-column prop="status" label="状态" min-width="10%">
+        <el-table-column prop="status" label="状态" width="120" align="center">
           <template #default="{ row }">
             <el-select v-model="row.status" placeholder="状态" @change="onChangePublishStatus(row)">
               <el-option label="未发布" :value="0" />
@@ -178,13 +196,14 @@ const onChangePublishStatus = async (row) => {
             </el-select>
           </template>
         </el-table-column>
-        <el-table-column label="操作" min-width="12%">
+        <el-table-column label="操作" width="180" align="center">
           <template #default="{ row }">
-            <el-button type="primary" :icon="EditPen" />
-            <el-button type="primary" :icon="Brush" />
+            <el-button type="primary" :icon="EditPen" class="btn" />
+            <el-button type="primary" :icon="Brush" class="btn" />
             <el-button
               type="danger"
               :icon="Delete"
+              class="btn"
               v-if="onDelete"
               @click="toggleDeleteStatus(row.id)"
               :plain="!deleteIds.has(row.id)"
@@ -208,7 +227,7 @@ const onChangePublishStatus = async (row) => {
 
 <style scoped lang="scss">
 .article-page {
-  .el-button {
+  .btn {
     width: 35px;
     height: 35px;
     font-size: 18px;
