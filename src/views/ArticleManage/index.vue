@@ -85,7 +85,7 @@ const onBatchDelete = async () => {
         cancelButtonText: '取消',
         type: 'warning'
       })
-      await deleteArticleAPI(Array.from(deleteIds.value))
+      await deleteArticleAPI(Array.from(deleteIds.value).join(','))
       getArticleList()
       ElMessage.success('删除成功')
     }
