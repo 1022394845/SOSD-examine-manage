@@ -7,7 +7,7 @@ export const getUserListAPI = (pageInfo, args) =>
   })
 
 // 新增用户
-export const addUserAPI = (data) => request.post('/user/addAuthors', data)
+export const addUserAPI = (data) => request.post('/admin/users/addAuthors', data)
 
 // 修改用户信息
 export const modifyUserInfoAPI = (data) => request.put('/admin/users', data)

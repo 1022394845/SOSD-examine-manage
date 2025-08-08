@@ -90,6 +90,7 @@ const submit = async () => {
             class="avatar-uploader"
             :show-file-list="false"
             :auto-upload="false"
+            accept="image/*"
             :on-change="onChangeImage"
           >
             <img v-if="imageUrl" :src="imageUrl" class="avatar" />
