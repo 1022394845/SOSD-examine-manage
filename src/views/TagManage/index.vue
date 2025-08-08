@@ -3,8 +3,6 @@ import { Search, Plus, EditPen, Delete } from '@element-plus/icons-vue'
 import TagEditor from './components/TagEditor.vue'
 import { changeTagStatusAPI, deleteTagAPI, getTagListAPI } from '@/api/tag'
 
-const searchKey = ref('')
-
 const tagList = ref([])
 const loading = ref(false)
 const getTagList = async () => {
@@ -13,11 +11,24 @@ const getTagList = async () => {
     data: { records }
   } = await getTagListAPI()
   tagList.value = records
+  searchList.value = records
   loading.value = false
 }
 onMounted(() => {
   getTagList()
 })
+
+// 搜索标签
+const searchKey = ref('')
+const searchList = ref([])
+const onSearch = () => {
+  if (!searchKey.value?.trim()) {
+    searchList.value = tagList.value
+    return
+  }
+  const query = searchKey.value.trim().toLowerCase()
+  searchList.value = tagList.value.filter((item) => item.name.toLowerCase().includes(query))
+}
 
 const tagEditor = ref()
 const onAddTag = () => {
@@ -58,15 +69,15 @@ const onChangeStatus = async (row) => {
       <div class="title">标签管理</div>
       <div class="search-input">
         <div class="label">标签</div>
-        <el-input v-model="searchKey" style="width: 240px" placeholder="请输入标签名称" />
+        <el-input v-model="searchKey" style="width: 240px" placeholder="请输入标签名称" clearable />
       </div>
       <div class="btn-group">
-        <el-button type="primary" :icon="Search">搜索</el-button>
+        <el-button type="primary" :icon="Search" @click="onSearch">搜索</el-button>
         <el-button type="primary" :icon="Plus" @click="onAddTag">添加</el-button>
       </div>
     </div>
     <div class="table">
-      <el-table :data="tagList" style="width: 100%" v-loading="loading">
+      <el-table :data="searchList" style="width: 100%" v-loading="loading">
         <el-table-column prop="name" label="标签" />
         <el-table-column prop="status" label="上下线" width="150" align="center">
           <template #default="{ row }">
